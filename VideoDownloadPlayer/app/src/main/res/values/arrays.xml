@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="videos">
+        　　
+        <item>http://ws.cdn.xuetangx.com/e0e111bb83f69a2a-20.mp4</item>
+        　　
+        <item>http://sjy.cdn.xuetangx.com/4adbe23ff7119c27-20.mp4</item>
+        　　
+        <item>http://ws.cdn.xuetangx.com/921126876a9435c5-20.mp4</item>
+        　　
+        <item>http://ws.cdn.xuetangx.com/7354f1f80b47fe31-20.mp4</item>
+        　　
+        <item>http://ws.cdn.xuetangx.com/e1f783f33e1915ec-20.mp4</item>
+        　　
+        <item>http://ws.cdn.xuetangx.com/82db168e28604b3c-20.mp4</item>
+        　　
+        <item>http://ws.cdn.xuetangx.com/0d1445cbd510515b-20.mp4</item>
+        　　
+        <item>http://ws.cdn.xuetangx.com/7b800acf4613a49a-20.mp4</item>
+        　　
+        <item>http://ws.cdn.xuetangx.com/7b0602ffe37d8e4d-20.mp4</item>
+        　　
+        <item>http://ws.cdn.xuetangx.com/cb76770454291704-20.mp4</item>
+        　　
+    </string-array>
+    <string-array name="videos_name">
+        　　
+        <item>课程一</item>
+        <item>课程二</item>
+        <item>课程三</item>
+        <item>课程四</item>
+        <item>课程五</item>
+        <item>课程六</item>
+        <item>课程七</item>
+        <item>课程八</item>
+        <item>课程九</item>
+        <item>课程十</item>
+        　　
+    </string-array>
+
+
+</resources>
