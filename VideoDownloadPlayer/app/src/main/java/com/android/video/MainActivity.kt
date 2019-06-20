@@ -22,6 +22,14 @@ class MainActivity : AppCompatActivity() {
             R.mipmap.img9,
             R.mipmap.img10
         )
+        val videoList: MutableList<VideoEntity> =  ArrayList()
+        for (index in 1..10){
+           var entity =VideoEntity ()
+            entity.videoUrl=videos[index]
+            entity.videoName=videosName[index]
+            entity.videoImg=images[index]
+            videoList.add(entity)
+        }
 
 
     }
