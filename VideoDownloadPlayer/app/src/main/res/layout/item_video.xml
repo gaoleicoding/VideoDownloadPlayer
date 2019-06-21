@@ -12,40 +12,46 @@
 
         <ImageView
                 android:id="@+id/img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:src="@mipmap/img1"
-
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
         <TextView
-                android:id="@+id/title"
+                android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
                 android:textColor="@color/dark"
                 android:text="视频1"
-                app:layout_constraintBottom_toTopOf="seekbar"
+                app:layout_constraintVertical_chainStyle="packed"
+                app:layout_constraintBottom_toTopOf="@id/seekbar"
                 app:layout_constraintStart_toEndOf="@id/img"
                 app:layout_constraintTop_toTopOf="parent"/>
-        <SeekBar
+        <ProgressBar
                 android:id="@+id/seekbar"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="4dp"
+                android:layout_marginTop="3dp"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:progressDrawable="@drawable/progressbar_bg"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/img"
-                app:layout_constraintTop_toBottomOf="@id/title"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@id/name"
+                app:layout_constraintTop_toBottomOf="@id/name"
+                app:layout_constraintBottom_toTopOf="@id/speed"
                 android:max="100"
-                android:progress="50" />
-        <!--<TextView-->
-                <!--android:id="@+id/speed"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:textColor="@color/dark"-->
-                <!--android:text="视频1"-->
-                <!--app:layout_constraintTop_toBottomOf="@id/seekbar"-->
-                <!--app:layout_constraintLeft_toRightOf="@id/img"-->
-                <!--app:layout_constraintBottom_toBottomOf="parent"/>-->
+                android:progress="10" />
+        <TextView
+                android:id="@+id/speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:textColor="@color/color_9a9a9a"
+                android:text="1M/s"
+                app:layout_constraintStart_toStartOf="@id/name"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/seekbar"
+                />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
