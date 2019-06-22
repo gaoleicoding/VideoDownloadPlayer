@@ -41,14 +41,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
         var videoAdapter= VideoAdapter(this@MainActivity, videoList)
-//        videoRecyclerView!!.addItemDecoration(
-//            DividerItemDecoration(
-//                this@MainActivity!!,
-//                DividerItemDecoration.VERTICAL
-//            )
-//        )
-        videoRecyclerView!!.layoutManager = LinearLayoutManager(this@MainActivity)
-
         videoRecyclerView.adapter = videoAdapter
         videoAdapter.setOnItemClickListener(object : VideoAdapter.OnItemClickListener {
             override fun onItemClick(view: View, position: Int) {
