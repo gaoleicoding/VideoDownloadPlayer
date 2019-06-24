@@ -4,10 +4,11 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.android.singledownload.DownloadInfo
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-    lateinit var videoList: MutableList<VideoEntity>
+    lateinit var videoList: MutableList<DownloadInfo>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -27,10 +28,10 @@ class MainActivity : AppCompatActivity() {
         )
         videoList = ArrayList()
         for (index in 0..9) {
-            var entity = VideoEntity()
-            entity.videoUrl = videos[index]
-            entity.videoName = videosName[index]
-            entity.videoImg = images[index]
+            var entity = DownloadInfo()
+            entity.url = videos[index]
+            entity.fileName = videosName[index]
+            entity.fileImg = images[index]
             videoList.add(entity)
         }
         initRecyclerView()
@@ -43,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         videoAdapter.setOnItemClickListener(object : VideoAdapter.OnItemClickListener {
             override fun onItemClick(view: View, position: Int) {
                 Toast.makeText(this@MainActivity, "position：" + position, Toast.LENGTH_LONG).show()
+
             }
 
         })
