@@ -1,4 +1,4 @@
-package com.android.video
+package com.android.file
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4

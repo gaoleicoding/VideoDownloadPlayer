@@ -82,6 +82,7 @@ public class DownManager {
         downloadInfo.setTotal(contentLength);
         String fileName = url.substring(url.lastIndexOf("/"));
         downloadInfo.setFileName(fileName);
+        downloadInfo.setUrl(url);
         return downloadInfo;
     }
 
@@ -112,6 +113,8 @@ public class DownManager {
         //设置改变过的文件名/大小
         downloadInfo.setProgress(downloadLength);
         downloadInfo.setFileName(file.getName());
+        String filde=downloadInfo.getFileName();
+        String url=downloadInfo.getUrl();
         return downloadInfo;
     }
 

@@ -1,4 +1,4 @@
-package com.android.video
+package com.android.file
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -13,21 +13,24 @@ import com.android.singledownload.DownLoadObserver
 import com.android.singledownload.DownManager
 import com.android.singledownload.DownloadInfo
 
-class VideoAdapter(private val context: Context, private val videoList: List<DownloadInfo>) :
+class VideoAdapter(private val context: Context, private val fileList: List<DownloadInfo>) :
     RecyclerView.Adapter<VideoAdapter.ViewHolder>() {
-    lateinit var clickListener: OnItemClickListener
+
+//    lateinit var clickListener: OnItemClickListener
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.item_video, parent, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        var downloadInfo: DownloadInfo = videoList[position]
+        var downloadInfo: DownloadInfo = fileList[position]
         holder.name.text = downloadInfo.fileName
         holder.img.setImageResource(downloadInfo.fileImg)
 
         holder.itemView.setOnClickListener {
-            clickListener.onItemClick(holder.itemView, position)
+//            clickListener.onItemClick(holder.itemView, position,downloadInfo)
+
             if (!downloadInfo.isStop) {
                 DownManager.getInstance().download(downloadInfo.url, object : DownLoadObserver() {
                     override fun onNext(value: DownloadInfo) {
@@ -56,7 +59,7 @@ class VideoAdapter(private val context: Context, private val videoList: List<Dow
     }
 
     override fun getItemCount(): Int {
-        return videoList.size
+        return fileList.size
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -64,7 +67,7 @@ class VideoAdapter(private val context: Context, private val videoList: List<Dow
         var name: TextView
         var speed: TextView
         var img: ImageView
-        lateinit var progress: ProgressBar
+         var progress: ProgressBar
 
         init {
             name = itemView.findViewById(R.id.name)
@@ -75,11 +78,11 @@ class VideoAdapter(private val context: Context, private val videoList: List<Dow
         }
     }
 
-    interface OnItemClickListener {
-        fun onItemClick(view: View, position: Int)
-    }
-
-    fun setOnItemClickListener(clickListener: OnItemClickListener) {
-        this.clickListener = clickListener
-    }
+//    interface OnItemClickListener {
+//        fun onItemClick(view: View, position: Int,downloadInfo: DownloadInfo)
+//    }
+//
+//    fun setOnItemClickListener(clickListener: OnItemClickListener) {
+//        this.clickListener = clickListener
+//    }
 }

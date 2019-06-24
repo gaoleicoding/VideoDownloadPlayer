@@ -1,14 +1,12 @@
-package com.android.video
+package com.android.file
 
 import android.os.Bundle
-import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.singledownload.DownloadInfo
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-    lateinit var videoList: MutableList<DownloadInfo>
+    lateinit var fileList: MutableList<DownloadInfo>
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -26,28 +24,22 @@ class MainActivity : AppCompatActivity() {
             R.mipmap.img9,
             R.mipmap.img10
         )
-        videoList = ArrayList()
+        fileList = ArrayList()
         for (index in 0..9) {
             var entity = DownloadInfo()
             entity.url = videos[index]
             entity.fileName = videosName[index]
             entity.fileImg = images[index]
-            videoList.add(entity)
+            fileList.add(entity)
         }
         initRecyclerView()
 
     }
 
     private fun initRecyclerView() {
-        var videoAdapter= VideoAdapter(this@MainActivity, videoList)
+        var videoAdapter= VideoAdapter(this@MainActivity, fileList)
         videoRecyclerView.adapter = videoAdapter
-        videoAdapter.setOnItemClickListener(object : VideoAdapter.OnItemClickListener {
-            override fun onItemClick(view: View, position: Int) {
-                Toast.makeText(this@MainActivity, "position：" + position, Toast.LENGTH_LONG).show()
 
-            }
-
-        })
     }
 
 }
