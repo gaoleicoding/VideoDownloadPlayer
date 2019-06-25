@@ -19,11 +19,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    greendao {
-        schemaVersion 1                         //数据库版本号，如果数据库需要升级，直接在此修改版本号即可
-        daoPackage 'com.android.singledownload.greendao.gen'      //dao包名，默认是entity所在的包
-        targetGenDir 'src/main/java'            //数据库文件的目录
-    }
+
     compileOptions {
         sourceCompatibility 1.8
         targetCompatibility 1.8
@@ -43,5 +39,7 @@ dependencies {
     //RxJava和RxAndroid 用来做线程切换的
     api 'io.reactivex.rxjava2:rxandroid:2.0.1'
     api 'io.reactivex.rxjava2:rxjava:2.0.1'
+    api 'android.arch.persistence.room:runtime:1.0.0'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.0.0'
 
 }

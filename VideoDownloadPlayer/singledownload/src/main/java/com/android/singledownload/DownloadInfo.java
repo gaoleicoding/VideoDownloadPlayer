@@ -1,15 +1,41 @@
 package com.android.singledownload;
 
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Id;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
+@Entity(tableName = "download", indices = {})
 public class DownloadInfo {
-    private Long id;
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
+    private int id;
+    @ColumnInfo(name = "url")
     private String url;
-    private long total;
+    @ColumnInfo(name = "total_length")
+    private long totalLength;
+    @ColumnInfo(name = "progress")
     private long progress;
+    @ColumnInfo(name = "file_name")
     private String fileName;
+    @ColumnInfo(name = "file_img")
     private int fileImg;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public long getTotalLength() {
+        return totalLength;
+    }
+
+    public void setTotalLength(long totalLength) {
+        this.totalLength = totalLength;
+    }
+
     private boolean isStop;
     public String getUrl() {
         return url;
@@ -31,13 +57,6 @@ public class DownloadInfo {
         this.fileName = fileName;
     }
 
-    public long getTotal() {
-        return total;
-    }
-
-    public void setTotal(long total) {
-        this.total = total;
-    }
 
     public long getProgress() {
         return progress;
