@@ -1,4 +1,4 @@
-package com.android.file
+package com.android.download
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -10,7 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.android.singledownload.DownLoadObserver
-import com.android.singledownload.DownManager
+import com.android.singledownload.DownloadManager
 import com.android.singledownload.DownloadInfo
 
 class VideoAdapter(private val context: Context, private val fileList: List<DownloadInfo>) :
@@ -32,7 +32,7 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
 //            clickListener.onItemClick(holder.itemView, position,downloadInfo)
 
             if (!downloadInfo.isStop) {
-                DownManager.getInstance().download(downloadInfo.url, object : DownLoadObserver() {
+                DownloadManager.getInstance().download(downloadInfo.url, object : DownLoadObserver() {
                     override fun onNext(value: DownloadInfo) {
                         super.onNext(value)
                         holder.progress.setMax(value.getTotal().toInt())
@@ -51,7 +51,7 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
                 })
                 downloadInfo.isStop = true
             } else {
-                DownManager.getInstance().cancel(downloadInfo.url)
+                DownloadManager.getInstance().cancel(downloadInfo.url)
                 downloadInfo.isStop = false
             }
         }

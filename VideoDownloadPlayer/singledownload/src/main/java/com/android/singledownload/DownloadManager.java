@@ -1,5 +1,6 @@
 package com.android.singledownload;
 
+import android.os.Environment;
 import android.util.Log;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -19,29 +20,35 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 
-public class DownManager {
+public class DownloadManager {
 
-    private static final AtomicReference<DownManager> INSTANCE = new AtomicReference<>();
+    private static final AtomicReference<DownloadManager> INSTANCE = new AtomicReference<>();
     private HashMap<String, Call> downCalls;//用来存放各个下载的请求
     private OkHttpClient mClient;//OKHttpClient;
+    String downloadPath;
 
     //获得一个单例类
-    public static DownManager getInstance() {
-        for (; ; ) {
-            DownManager current = INSTANCE.get();
+    public static DownloadManager getInstance() {
+            DownloadManager current = INSTANCE.get();
             if (current != null) {
                 return current;
             }
-            current = new DownManager();
+            current = new DownloadManager();
             if (INSTANCE.compareAndSet(null, current)) {
                 return current;
             }
-        }
+            return null;
     }
 
-    private DownManager() {
+    private DownloadManager() {
         downCalls = new HashMap<>();
         mClient = new OkHttpClient.Builder().build();
+        downloadPath = Environment.getExternalStorageDirectory().getPath() + "/downloadPlayer";
+        File file = new File(downloadPath);
+        if (!file.exists()) {
+            //找到了文件,代表已经下载过,则获取其长度
+            new File(downloadPath).mkdirs();
+        }
     }
 
     /**
@@ -89,7 +96,7 @@ public class DownManager {
     private DownloadInfo getRealFileName(DownloadInfo downloadInfo) {
         String fileName = downloadInfo.getFileName();
         long downloadLength = 0, contentLength = downloadInfo.getTotal();
-        File file = new File(ContextUtil.getAppContext().getFilesDir(), fileName);
+        File file = new File(downloadPath, fileName);
         if (file.exists()) {
             //找到了文件,代表已经下载过,则获取其长度
             downloadLength = file.length();
@@ -105,7 +112,7 @@ public class DownManager {
                 fileNameOther = fileName.substring(0, dotIndex)
                         + "(" + i + ")" + fileName.substring(dotIndex);
             }
-            File newFile = new File(ContextUtil.getAppContext().getFilesDir(), fileNameOther);
+            File newFile = new File(downloadPath, fileNameOther);
             file = newFile;
             downloadLength = newFile.length();
             i++;
@@ -113,8 +120,6 @@ public class DownManager {
         //设置改变过的文件名/大小
         downloadInfo.setProgress(downloadLength);
         downloadInfo.setFileName(file.getName());
-        String filde=downloadInfo.getFileName();
-        String url=downloadInfo.getUrl();
         return downloadInfo;
     }
 
@@ -142,7 +147,7 @@ public class DownManager {
             downCalls.put(url, call);//把这个添加到call里,方便取消
             Response response = call.execute();
 
-            File file = new File(ContextUtil.getAppContext().getFilesDir(), downloadInfo.getFileName());
+            File file = new File(downloadPath, downloadInfo.getFileName());
             InputStream is = null;
             FileOutputStream fileOutputStream = null;
             try {
@@ -156,18 +161,19 @@ public class DownManager {
                     downloadInfo.setProgress(downloadLength);
                     e.onNext(downloadInfo);
                 }
+                if(downloadLength==downloadInfo.getTotal())
+                    e.onComplete();//完成
                 fileOutputStream.flush();
                 downCalls.remove(url);
-            }catch (Exception ex){
-                String exception=ex.toString();
-                Log.e("gaolei","exception："+exception);
-            }
-            finally {
+            } catch (Exception ex) {
+                String exception = ex.toString();
+                Log.e("gaolei", "exception：" + exception);
+            } finally {
                 //关闭IO流
                 IOUtil.closeAll(is, fileOutputStream);
 
             }
-            e.onComplete();//完成
+
         }
     }
 
@@ -178,6 +184,7 @@ public class DownManager {
      * @return
      */
     private long getContentLength(String downloadUrl) {
+        final long TOTAL_ERROR = -1;//获取进度失败
         Request request = new Request.Builder()
                 .url(downloadUrl)
                 .build();
@@ -186,12 +193,12 @@ public class DownManager {
             if (response != null && response.isSuccessful()) {
                 long contentLength = response.body().contentLength();
                 response.close();
-                return contentLength == 0 ? DownloadInfo.TOTAL_ERROR : contentLength;
+                return contentLength == 0 ? TOTAL_ERROR : contentLength;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return DownloadInfo.TOTAL_ERROR;
+        return TOTAL_ERROR;
     }
 
 

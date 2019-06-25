@@ -1,8 +1,10 @@
 package com.android.singledownload;
 
+import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Id;
 
 public class DownloadInfo {
-    public static final long TOTAL_ERROR = -1;//获取进度失败
+    private Long id;
     private String url;
     private long total;
     private long progress;
