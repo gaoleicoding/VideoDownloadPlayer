@@ -5,10 +5,6 @@ import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-/**
- * Created by Allen on 2018/4/16/016.
- */
-
 @Database(entities = {DownloadInfo.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract DownloadDao downloadDao();

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item android:state_pressed="true">
+        <!-- 定义当button 处于pressed 状态时的形态。 -->
+        <shape>
+            <!-- 实心 -->
+            <solid android:color="#ebebeb"/>
+        </shape>
+
+    </item>
+    <item android:state_focused="true">
+        <!-- 定义当button获得focus时的形态 -->
+        <shape>
+            <!-- 实心 -->
+            <solid android:color="#ebebeb"/>
+        </shape>
+    </item>
+    <item>
+        <!-- 定义当button 处于普通 状态时的形态。 -->
+        <shape>
+            <!-- 实心 -->
+            <solid android:color="#ffffff"/>
+        </shape>
+    </item>
+
+</selector>
