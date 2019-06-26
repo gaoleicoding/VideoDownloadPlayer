@@ -86,7 +86,7 @@ public class DownloadManager {
     private DownloadInfo createDownInfo(String url) {
         DownloadInfo downloadInfo = new DownloadInfo();
         long contentLength = getContentLength(url);//获得文件大小
-        downloadInfo.setTotal(contentLength);
+        downloadInfo.setTotalLength(contentLength);
         String fileName = url.substring(url.lastIndexOf("/"));
         downloadInfo.setFileName(fileName);
         downloadInfo.setUrl(url);
@@ -95,7 +95,7 @@ public class DownloadManager {
 
     private DownloadInfo getRealFileName(DownloadInfo downloadInfo) {
         String fileName = downloadInfo.getFileName();
-        long downloadLength = 0, contentLength = downloadInfo.getTotal();
+        long downloadLength = 0, contentLength = downloadInfo.getTotalLength();
         File file = new File(downloadPath, fileName);
         if (file.exists()) {
             //找到了文件,代表已经下载过,则获取其长度
@@ -134,7 +134,7 @@ public class DownloadManager {
         public void subscribe(ObservableEmitter<DownloadInfo> e) throws Exception {
             String url = downloadInfo.getUrl();
             long downloadLength = downloadInfo.getProgress();//已经下载好的长度
-            long contentLength = downloadInfo.getTotal();//文件的总长度
+            long contentLength = downloadInfo.getTotalLength();//文件的总长度
             //初始进度信息
             e.onNext(downloadInfo);
 
@@ -161,7 +161,7 @@ public class DownloadManager {
                     downloadInfo.setProgress(downloadLength);
                     e.onNext(downloadInfo);
                 }
-                if(downloadLength==downloadInfo.getTotal())
+                if(downloadLength==downloadInfo.getTotalLength())
                     e.onComplete();//完成
                 fileOutputStream.flush();
                 downCalls.remove(url);

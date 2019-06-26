@@ -9,7 +9,7 @@ import java.util.List;
  */
 
 @Dao
-public interface UserDao {
+public interface DownloadDao {
     //所有的CURD根据primary key进行匹配
     //------------------------query------------------------
     @Query("SELECT * FROM download")

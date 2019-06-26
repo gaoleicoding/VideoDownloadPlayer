@@ -11,7 +11,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 @Database(entities = {DownloadInfo.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
-    public abstract UserDao userDao();
+    public abstract DownloadDao downloadDao();
 
     //数据库变动添加Migration
     public static final Migration MIGRATION_1_2 = new Migration(1, 2) {

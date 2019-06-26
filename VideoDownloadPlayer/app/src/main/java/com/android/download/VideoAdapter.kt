@@ -35,7 +35,7 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
                 DownloadManager.getInstance().download(downloadInfo.url, object : DownLoadObserver() {
                     override fun onNext(value: DownloadInfo) {
                         super.onNext(value)
-                        holder.progress.setMax(value.getTotal().toInt())
+                        holder.progress.setMax(value.totalLength.toInt())
                         holder.progress.setProgress(value.getProgress().toInt())
                     }
 
