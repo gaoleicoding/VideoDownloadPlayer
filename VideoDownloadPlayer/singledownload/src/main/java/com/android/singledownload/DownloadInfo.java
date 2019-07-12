@@ -1,31 +1,49 @@
 package com.android.singledownload;
 
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "download", indices = {})
 public class DownloadInfo {
+
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     private int id;
     @ColumnInfo(name = "url")
     private String url;
-    @ColumnInfo(name = "total_length")
-    private long totalLength;
-    @ColumnInfo(name = "progress")
-    private long progress;
     @ColumnInfo(name = "file_name")
     private String fileName;
+    @ColumnInfo(name = "file_save_name")
+    private String fileSaveName;
+
+    public String getFileSaveName() {
+        return fileSaveName;
+    }
+
+    public void setFileSaveName(String fileSaveName) {
+        this.fileSaveName = fileSaveName;
+    }
+
     @ColumnInfo(name = "file_img")
     private int fileImg;
 
-    public int getId() {
-        return id;
+    @ColumnInfo(name = "download_status")
+    private int downloadStatus = DownloadStatus.statusPause;
+
+    @ColumnInfo(name = "download_length")
+    private long downloadLength;
+
+    @ColumnInfo(name = "total_length")
+    private long totalLength;
+
+    public String getUrl() {
+        return url;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public long getTotalLength() {
@@ -36,9 +54,12 @@ public class DownloadInfo {
         this.totalLength = totalLength;
     }
 
-    private boolean isStop;
-    public String getUrl() {
-        return url;
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getFileImg() {
@@ -53,28 +74,40 @@ public class DownloadInfo {
         return fileName;
     }
 
+    public DownloadInfo(String fileName, int downloadStatus, long downloadLength, long totalLength) {
+        this.fileName = fileName;
+        this.downloadStatus = downloadStatus;
+        this.downloadLength = downloadLength;
+        this.totalLength = totalLength;
+    }
+
+    public DownloadInfo() {
+
+    }
+
+    public DownloadInfo(String fileName) {
+        this.fileName = fileName;
+    }
+
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
 
-
-    public long getProgress() {
-        return progress;
+    public int getDownloadStatus() {
+        return downloadStatus;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setDownloadStatus(int downloadStatus) {
+        this.downloadStatus = downloadStatus;
     }
 
-    public boolean isStop() {
-        return isStop;
+    public long getDownloadLength() {
+        return downloadLength;
     }
 
-    public void setStop(boolean stop) {
-        isStop = stop;
+    public void setDownloadLength(long downloadLength) {
+        this.downloadLength = downloadLength;
     }
 
-    public void setProgress(long progress) {
-        this.progress = progress;
-    }
+
 }

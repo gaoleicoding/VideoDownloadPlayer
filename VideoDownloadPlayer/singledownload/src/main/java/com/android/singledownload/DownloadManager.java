@@ -29,15 +29,15 @@ public class DownloadManager {
 
     //获得一个单例类
     public static DownloadManager getInstance() {
-            DownloadManager current = INSTANCE.get();
-            if (current != null) {
-                return current;
-            }
-            current = new DownloadManager();
-            if (INSTANCE.compareAndSet(null, current)) {
-                return current;
-            }
-            return null;
+        DownloadManager current = INSTANCE.get();
+        if (current != null) {
+            return current;
+        }
+        current = new DownloadManager();
+        if (INSTANCE.compareAndSet(null, current)) {
+            return current;
+        }
+        return null;
     }
 
     private DownloadManager() {
@@ -118,7 +118,7 @@ public class DownloadManager {
             i++;
         }
         //设置改变过的文件名/大小
-        downloadInfo.setProgress(downloadLength);
+        downloadInfo.setDownloadLength(downloadLength);
         downloadInfo.setFileName(file.getName());
         return downloadInfo;
     }
@@ -133,7 +133,7 @@ public class DownloadManager {
         @Override
         public void subscribe(ObservableEmitter<DownloadInfo> e) throws Exception {
             String url = downloadInfo.getUrl();
-            long downloadLength = downloadInfo.getProgress();//已经下载好的长度
+            long downloadLength = downloadInfo.getDownloadLength();//已经下载好的长度
             long contentLength = downloadInfo.getTotalLength();//文件的总长度
             //初始进度信息
             e.onNext(downloadInfo);
@@ -158,10 +158,10 @@ public class DownloadManager {
                 while ((len = is.read(buffer)) != -1) {
                     fileOutputStream.write(buffer, 0, len);
                     downloadLength += len;
-                    downloadInfo.setProgress(downloadLength);
+                    downloadInfo.setDownloadLength(downloadLength);
                     e.onNext(downloadInfo);
                 }
-                if(downloadLength==downloadInfo.getTotalLength())
+                if (downloadLength == downloadInfo.getTotalLength())
                     e.onComplete();//完成
                 fileOutputStream.flush();
                 downCalls.remove(url);

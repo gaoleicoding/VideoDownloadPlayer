@@ -47,7 +47,7 @@
                 android:id="@+id/tv_download_count"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="同时缓存个数1"
+                android:text="编辑"
                 android:textSize="15sp"
                 android:padding="10dp"
                 android:layout_marginLeft="10dp"
