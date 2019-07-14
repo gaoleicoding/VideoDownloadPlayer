@@ -15,16 +15,8 @@ public class DownloadInfo {
     private String url;
     @ColumnInfo(name = "file_name")
     private String fileName;
-    @ColumnInfo(name = "file_save_name")
-    private String fileSaveName;
-
-    public String getFileSaveName() {
-        return fileSaveName;
-    }
-
-    public void setFileSaveName(String fileSaveName) {
-        this.fileSaveName = fileSaveName;
-    }
+    @ColumnInfo(name = "file_show_name")
+    private String fileShowName;
 
     @ColumnInfo(name = "file_img")
     private int fileImg;
@@ -37,6 +29,14 @@ public class DownloadInfo {
 
     @ColumnInfo(name = "total_length")
     private long totalLength;
+    public String getFileShowName() {
+        return fileShowName;
+    }
+
+    public void setFileShowName(String fileShowName) {
+        this.fileShowName = fileShowName;
+    }
+
 
     public String getUrl() {
         return url;

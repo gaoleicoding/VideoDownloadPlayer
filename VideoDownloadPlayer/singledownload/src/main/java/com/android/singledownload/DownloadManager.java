@@ -2,15 +2,14 @@ package com.android.singledownload;
 
 import android.os.Environment;
 import android.util.Log;
+import com.android.singledownload.db.DatabaseManager;
+import com.android.singledownload.net.OkhttpManager;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.Call;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,7 +24,8 @@ public class DownloadManager {
     private static final AtomicReference<DownloadManager> INSTANCE = new AtomicReference<>();
     private HashMap<String, Call> downCalls;//用来存放各个下载的请求
     private OkHttpClient mClient;//OKHttpClient;
-    String downloadPath;
+
+    public String downloadPath;
 
     //获得一个单例类
     public static DownloadManager getInstance() {
@@ -54,17 +54,17 @@ public class DownloadManager {
     /**
      * 开始下载
      *
-     * @param url              下载请求的网址
+     * @param
      * @param downLoadObserver 用来回调的接口
      */
-    public void download(String url, DownLoadObserver downLoadObserver) {
-        Observable.just(url)
+    public void download(DownloadInfo info, DownLoadObserver downLoadObserver) {
+        Observable.just(info.getUrl())
                 .filter(s -> !downCalls.containsKey(s))//call的map已经有了,就证明正在下载,则这次不下载
-                .flatMap(s -> Observable.just(createDownInfo(s)))
+                .flatMap(s -> Observable.just(info))
                 .map(this::getRealFileName)//检测本地文件夹,生成新的文件名
                 .flatMap(downloadInfo -> Observable.create(new DownloadSubscribe(downloadInfo)))//下载
-                .observeOn(AndroidSchedulers.mainThread())//在主线程回调
                 .subscribeOn(Schedulers.io())//在子线程执行
+                .observeOn(AndroidSchedulers.mainThread())//在主线程回调
                 .subscribe(downLoadObserver);//添加观察者
 
     }
@@ -77,21 +77,22 @@ public class DownloadManager {
         downCalls.remove(url);
     }
 
-    /**
-     * 创建DownInfo
-     *
-     * @param url 请求网址
-     * @return DownInfo
-     */
-    private DownloadInfo createDownInfo(String url) {
-        DownloadInfo downloadInfo = new DownloadInfo();
-        long contentLength = getContentLength(url);//获得文件大小
-        downloadInfo.setTotalLength(contentLength);
-        String fileName = url.substring(url.lastIndexOf("/"));
-        downloadInfo.setFileName(fileName);
-        downloadInfo.setUrl(url);
-        return downloadInfo;
-    }
+//    /**
+//     * 创建DownInfo
+//     *
+//     * @param url 请求网址
+//     * @return DownInfo
+//     */
+//    private DownloadInfo createDownInfo(String url) {
+////        DownloadInfo downloadInfo = new DownloadInfo();
+////        long contentLength = getContentLength(url);//获得文件大小
+////        downloadInfo.setTotalLength(contentLength);
+////        String fileName = url.substring(url.lastIndexOf("/"));
+////        downloadInfo.setFileName(fileName);
+////        downloadInfo.setUrl(url);
+//        DownloadInfo downloadInfo= DatabaseManager.getInstance().db.downloadDao().findByFileUrl(url);
+//        return downloadInfo;
+//    }
 
     private DownloadInfo getRealFileName(DownloadInfo downloadInfo) {
         String fileName = downloadInfo.getFileName();
@@ -134,24 +135,26 @@ public class DownloadManager {
         public void subscribe(ObservableEmitter<DownloadInfo> e) throws Exception {
             String url = downloadInfo.getUrl();
             long downloadLength = downloadInfo.getDownloadLength();//已经下载好的长度
-            long contentLength = downloadInfo.getTotalLength();//文件的总长度
+//            long contentLength = downloadInfo.getTotalLength();//文件的总长度
             //初始进度信息
             e.onNext(downloadInfo);
 
             Request request = new Request.Builder()
                     //确定下载的范围,添加此头,则服务器就可以跳过已经下载好的部分
-                    .addHeader("RANGE", "bytes=" + downloadLength + "-" + contentLength)
+                    .addHeader("RANGE", "bytes=" + downloadLength + "-" + downloadInfo.getTotalLength())
                     .url(url)
                     .build();
             Call call = mClient.newCall(request);
             downCalls.put(url, call);//把这个添加到call里,方便取消
             Response response = call.execute();
-
+            ResponseBody responseBody=response.body();
+//            String responseStr = responseBody.string();
+//            Log.d("gaolei","responseStr.length()："+responseStr.length());
             File file = new File(downloadPath, downloadInfo.getFileName());
             InputStream is = null;
             FileOutputStream fileOutputStream = null;
             try {
-                is = response.body().byteStream();
+                is = responseBody.byteStream();
                 fileOutputStream = new FileOutputStream(file, true);
                 byte[] buffer = new byte[2048];//缓冲数组2kB
                 int len;
@@ -183,23 +186,23 @@ public class DownloadManager {
      * @param downloadUrl
      * @return
      */
-    private long getContentLength(String downloadUrl) {
-        final long TOTAL_ERROR = -1;//获取进度失败
-        Request request = new Request.Builder()
-                .url(downloadUrl)
-                .build();
-        try {
-            Response response = mClient.newCall(request).execute();
-            if (response != null && response.isSuccessful()) {
-                long contentLength = response.body().contentLength();
-                response.close();
-                return contentLength == 0 ? TOTAL_ERROR : contentLength;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return TOTAL_ERROR;
-    }
+//    private long getContentLength(String downloadUrl) {
+//        final long TOTAL_ERROR = -1;//获取进度失败
+//        Request request = new Request.Builder()
+//                .url(downloadUrl)
+//                .build();
+//        try {
+//            Response response = mClient.newCall(request).execute();
+//            if (response != null && response.isSuccessful()) {
+//                long contentLength = response.body().contentLength();
+//                response.close();
+//                return contentLength == 0 ? TOTAL_ERROR : contentLength;
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return TOTAL_ERROR;
+//    }
 
 
 }

@@ -10,10 +10,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.android.singledownload.DownLoadObserver
-import com.android.singledownload.DownloadManager
 import com.android.singledownload.DownloadInfo
+import com.android.singledownload.DownloadManager
 import com.android.singledownload.DownloadStatus
-import com.android.singledownload.db.AppDatabase
 import com.android.singledownload.db.DatabaseManager
 
 class VideoAdapter(private val context: Context, private val fileList: List<DownloadInfo>) :
@@ -26,36 +25,48 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         var downloadInfo: DownloadInfo = fileList[position]
-        holder.name.text = downloadInfo.fileName
+        holder.name.text = downloadInfo.fileShowName
         holder.img.setImageResource(downloadInfo.fileImg)
+        if (downloadInfo.downloadStatus == DownloadStatus.statusStart)
+            holder.tv_download.setText("下载")
+        if (downloadInfo.downloadStatus == DownloadStatus.statusPause)
+            holder.tv_download.setText("继续")
+        if (downloadInfo.downloadStatus == DownloadStatus.statusDownloading)
+            holder.tv_download.setText("暂停")
 
-        holder.itemView.setOnClickListener {
-
-            if (downloadInfo.downloadStatus == DownloadStatus.statusPause) {
-                DownloadManager.getInstance().download(downloadInfo.url, object : DownLoadObserver() {
+        var mDownloadLength: Long = 0
+        holder.tv_download.setOnClickListener {
+            if (downloadInfo.downloadStatus == DownloadStatus.statusPause || downloadInfo.downloadStatus == DownloadStatus.statusStart) {
+                DownloadManager.getInstance().download(downloadInfo, object : DownLoadObserver() {
                     override fun onNext(value: DownloadInfo) {
                         super.onNext(value)
                         holder.progress.setMax(value.totalLength.toInt())
-                        holder.progress.setProgress(value.downloadLength.toInt())
+                        mDownloadLength = value.downloadLength
+                        holder.progress.setProgress(mDownloadLength.toInt())
                     }
 
                     override fun onComplete() {
                         if (downloadInfo != null) {
                             Toast.makeText(
                                 context,
-                                downloadInfo.getFileName() + "-DownloadComplete",
+                                downloadInfo.getFileName() + "-下载完成",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                     }
                 })
                 downloadInfo.downloadStatus = DownloadStatus.statusDownloading
-                DatabaseManager.db.downloadDao().insert(downloadInfo)
+                holder.tv_download.setText("暂停")
             } else {
                 DownloadManager.getInstance().cancel(downloadInfo.url)
-
                 downloadInfo.downloadStatus = DownloadStatus.statusPause
+                holder.tv_download.setText("继续")
             }
+            var downloadInfo: DownloadInfo =
+                DatabaseManager.getInstance().db.downloadDao().findByFileUrl(downloadInfo.url)
+            downloadInfo.downloadStatus = DownloadStatus.statusDownloading
+            downloadInfo.downloadLength = mDownloadLength
+            DatabaseManager.getInstance().db.downloadDao().update(downloadInfo)
         }
 
     }
@@ -67,17 +78,20 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         var name: TextView
-        var speed: TextView
+        var tv_speed: TextView
+        var tv_download: TextView
         var img: ImageView
         var progress: ProgressBar
 
         init {
             name = itemView.findViewById(R.id.name)
-            speed = itemView.findViewById(R.id.speed)
+            tv_speed = itemView.findViewById(R.id.tv_speed)
+            tv_download = itemView.findViewById(R.id.tv_download)
             img = itemView.findViewById(R.id.img)
             progress = itemView.findViewById(R.id.progress)
 
         }
     }
+
 
 }

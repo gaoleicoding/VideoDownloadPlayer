@@ -10,20 +10,9 @@ import com.android.singledownload.ContextUtil;
  */
 public class DatabaseManager {
 
-    public static AppDatabase db;
+    public AppDatabase db;
 
     private DatabaseManager() {
-    }
-
-    private static class SingletonHolder {
-        private static DatabaseManager instance = new DatabaseManager();
-    }
-
-    public static DatabaseManager getInstance() {
-        return SingletonHolder.instance;
-    }
-
-    public void initDatabase() {
         db = Room.databaseBuilder(
                 ContextUtil.getAppContext(),
                 AppDatabase.class, "download_info.db"
@@ -38,4 +27,13 @@ public class DatabaseManager {
                 .build();
 
     }
+
+    private static class SingletonHolder {
+        private static DatabaseManager instance = new DatabaseManager();
+    }
+
+    public static DatabaseManager getInstance() {
+        return SingletonHolder.instance;
+    }
+
 }

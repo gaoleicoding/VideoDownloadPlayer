@@ -8,7 +8,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:background="@drawable/item_bg"
             android:clickable="true"
             tools:context=".MainActivity">
 
@@ -36,16 +35,17 @@
                 android:layout_width="0dp"
                 android:layout_height="4dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="10dp"
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:progressDrawable="@drawable/progressbar_bg"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tv_download"
                 app:layout_constraintStart_toStartOf="@id/name"
                 app:layout_constraintTop_toBottomOf="@id/name"
-                app:layout_constraintBottom_toTopOf="@id/speed"
+                app:layout_constraintBottom_toTopOf="@id/tv_speed"
                 android:max="100"
-                android:progress="0" />
+                android:progress="0"/>
         <TextView
-                android:id="@+id/speed"
+                android:id="@+id/tv_speed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
@@ -54,6 +54,24 @@
                 app:layout_constraintStart_toStartOf="@id/name"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/progress"
-                />
+        />
+
+        <TextView
+                android:id="@+id/tv_download"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/color_1d82ff"
+                android:background="@drawable/download_bg"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:textSize="12sp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+
+                android:text="下载"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+        />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

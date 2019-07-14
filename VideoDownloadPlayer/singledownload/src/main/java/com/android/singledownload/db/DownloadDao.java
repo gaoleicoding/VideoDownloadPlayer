@@ -18,11 +18,11 @@ public interface DownloadDao {
     @Query("SELECT * FROM download")
     List<DownloadInfo> getAll();
 
-    @Query("SELECT * FROM download WHERE file_name IN (:fileNames)")
-    List<DownloadInfo> loadAllByFileNames(int[] fileNames);
+    @Query("SELECT * FROM download WHERE url IN (:urls)")
+    List<DownloadInfo> loadAllByUrls(int[] urls);
 
-    @Query("SELECT * FROM download WHERE file_name = :fileName")
-    DownloadInfo findByFileName(String fileName);
+    @Query("SELECT * FROM download WHERE url = :url")
+    DownloadInfo findByFileUrl(String url);
 
     //-----------------------insert----------------------
     @Insert(onConflict = OnConflictStrategy.REPLACE)
