@@ -1,6 +1,7 @@
 package com.android.download
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,48 +28,68 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
         var downloadInfo: DownloadInfo = fileList[position]
         holder.name.text = downloadInfo.fileShowName
         holder.img.setImageResource(downloadInfo.fileImg)
+        holder.progress.setMax(downloadInfo.totalLength.toInt())
+        var mDownloadLength: Long = downloadInfo.downloadLength
+        holder.progress.setProgress(mDownloadLength.toInt())
+
         if (downloadInfo.downloadStatus == DownloadStatus.statusStart)
             holder.tv_download.setText("下载")
         if (downloadInfo.downloadStatus == DownloadStatus.statusPause)
             holder.tv_download.setText("继续")
         if (downloadInfo.downloadStatus == DownloadStatus.statusDownloading)
             holder.tv_download.setText("暂停")
+        if (downloadInfo.downloadStatus == DownloadStatus.statusComplete)
+            holder.tv_download.setText("完成")
 
-        var mDownloadLength: Long = 0
         holder.tv_download.setOnClickListener {
             if (downloadInfo.downloadStatus == DownloadStatus.statusPause || downloadInfo.downloadStatus == DownloadStatus.statusStart) {
                 DownloadManager.getInstance().download(downloadInfo, object : DownLoadObserver() {
                     override fun onNext(value: DownloadInfo) {
                         super.onNext(value)
-                        holder.progress.setMax(value.totalLength.toInt())
+
                         mDownloadLength = value.downloadLength
+                        Log.d("gaolei", "downloadLength:" + value.downloadLength)
                         holder.progress.setProgress(mDownloadLength.toInt())
                     }
 
                     override fun onComplete() {
+                        downloadInfo.downloadLength = mDownloadLength
+                        downloadInfo.downloadStatus = DownloadStatus.statusComplete
+                        updateDownloadInfo(downloadInfo)
+
                         if (downloadInfo != null) {
                             Toast.makeText(
                                 context,
-                                downloadInfo.getFileName() + "-下载完成",
+                                downloadInfo.getFileShowName() + " 下载完成",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                     }
                 })
                 downloadInfo.downloadStatus = DownloadStatus.statusDownloading
+                downloadInfo.downloadLength = mDownloadLength
+                updateDownloadInfo(downloadInfo)
                 holder.tv_download.setText("暂停")
-            } else {
-                DownloadManager.getInstance().cancel(downloadInfo.url)
+            } else if (downloadInfo.downloadStatus == DownloadStatus.statusDownloading) {
+
                 downloadInfo.downloadStatus = DownloadStatus.statusPause
+                downloadInfo.downloadLength = mDownloadLength
+                updateDownloadInfo(downloadInfo)
+
+                DownloadManager.getInstance().cancel(downloadInfo.url)
                 holder.tv_download.setText("继续")
             }
-            var downloadInfo: DownloadInfo =
-                DatabaseManager.getInstance().db.downloadDao().findByFileUrl(downloadInfo.url)
-            downloadInfo.downloadStatus = DownloadStatus.statusDownloading
-            downloadInfo.downloadLength = mDownloadLength
-            DatabaseManager.getInstance().db.downloadDao().update(downloadInfo)
+
         }
 
+    }
+
+    fun updateDownloadInfo(downloadInfo: DownloadInfo) {
+//       var downloadInfo: DownloadInfo =
+//           DatabaseManager.getInstance().db.downloadDao().findByFileUrl(downloadInfo.url)
+        downloadInfo.downloadLength = downloadInfo.downloadLength
+        downloadInfo.downloadStatus = downloadInfo.downloadStatus
+        DatabaseManager.getInstance().db.downloadDao().update(downloadInfo)
     }
 
     override fun getItemCount(): Int {

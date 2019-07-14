@@ -56,13 +56,12 @@ class MainActivity : AppCompatActivity() {
             downloadInfo.fileImg = images[index]
             fileList.add(downloadInfo)
         }
-//        if (SharedPreferencesUtil.getInstance(this).getSP("isFirstInsertData").equals("")) {
-            getObservable().subscribe(getObserver());
-            DatabaseManager.getInstance().db.downloadDao().insertAll(fileList)
-            SharedPreferencesUtil.getInstance(this).putSP("isFirstInsertData", "false")
-//        } else {
-//            fileList2 = DatabaseManager.getInstance().db.downloadDao().getAll()
-//        }
+        if (SharedPreferencesUtil.getInstance(this).getSP("isFirstInsertData").equals("")) {
+        getObservable().subscribe(getObserver());
+
+        } else {
+            fileList2 = DatabaseManager.getInstance().db.downloadDao().getAll()
+        }
         initRecyclerView()
         requestPermission()
     }
@@ -86,17 +85,17 @@ class MainActivity : AppCompatActivity() {
             override fun onNext(data: DownloadInfo) {
                 Log.d("gaolei", "onNext-------------")
                 fileList2.add(data)
-
             }
 
             override fun onComplete() {
                 Log.d("gaolei", "onComplete-------------")
                 videoAdapter.notifyDataSetChanged()
+                DatabaseManager.getInstance().db.downloadDao().insertAll(fileList2)
+                SharedPreferencesUtil.getInstance(this@MainActivity).putSP("isFirstInsertData", "false")
             }
 
             override fun onError(e: Throwable) {
                 Log.d("gaolei", "e-------------" + e.message)
-
             }
         }
         return observer
@@ -171,7 +170,7 @@ class MainActivity : AppCompatActivity() {
         val downloadInfo = DownloadInfo()
         val contentLength = getContentLength(url)//获得文件大小
         downloadInfo.totalLength = contentLength
-        val fileName = url.substring(url.lastIndexOf("/"+1))
+        val fileName = url.substring(url.lastIndexOf("/") + 1)
         downloadInfo.fileName = fileName
         downloadInfo.url = url
         downloadInfo.fileImg = fileImg
