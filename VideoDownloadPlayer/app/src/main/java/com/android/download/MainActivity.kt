@@ -4,6 +4,7 @@ import android.Manifest.permission
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -57,10 +58,16 @@ class MainActivity : AppCompatActivity() {
             fileList.add(downloadInfo)
         }
         if (SharedPreferencesUtil.getInstance(this).getSP("isFirstInsertData").equals("")) {
-        getObservable().subscribe(getObserver());
+            getObservable().subscribe(getObserver());
 
         } else {
             fileList2 = DatabaseManager.getInstance().db.downloadDao().getAll()
+            for (index in 0..fileList2.size - 1) {
+                if (fileList2[index].downloadStatus == DownloadStatus.statusDownloading) {
+                    fileList2[index].downloadStatus = DownloadStatus.statusPause
+                    DatabaseManager.getInstance().db.downloadDao().update(fileList2[index])
+                }
+            }
         }
         initRecyclerView()
         requestPermission()
@@ -105,6 +112,21 @@ class MainActivity : AppCompatActivity() {
     private fun initRecyclerView() {
         videoAdapter = VideoAdapter(this@MainActivity, fileList2)
         videoRecyclerView.adapter = videoAdapter
+    }
+
+    fun startOrPauseAll(view: View) {
+        if (tv_all.text.toString() == "全部开始") {
+            videoAdapter.notifyStartOrPauseAll(true, false)
+            tv_all.text = "全部暂停"
+        }else {
+            videoAdapter.notifyStartOrPauseAll(false, true)
+            tv_all.text = "全部开始"
+        }
+
+    }
+
+    fun stopAll(view: View) {
+        videoAdapter.notifyStartOrPauseAll(false, true)
     }
 
     fun requestPermission() {

@@ -18,10 +18,17 @@ import com.android.singledownload.db.DatabaseManager
 
 class VideoAdapter(private val context: Context, private val fileList: List<DownloadInfo>) :
     RecyclerView.Adapter<VideoAdapter.ViewHolder>() {
-
+    var isStartAll: Boolean = false
+    var isStopAll: Boolean = false
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.item_video, parent, false)
         return ViewHolder(view)
+    }
+
+    fun notifyStartOrPauseAll(isStartAll: Boolean, isStopAll: Boolean) {
+        this.isStartAll = isStartAll
+        this.isStopAll = isStopAll
+        notifyDataSetChanged()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -31,6 +38,17 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
         holder.progress.setMax(downloadInfo.totalLength.toInt())
         var mDownloadLength: Long = downloadInfo.downloadLength
         holder.progress.setProgress(mDownloadLength.toInt())
+        if (isStartAll) {
+            startDownload(downloadInfo, holder)
+            if (downloadInfo.downloadStatus != DownloadStatus.statusComplete)
+                downloadInfo.downloadStatus == DownloadStatus.statusDownloading
+        }
+        if (isStopAll) {
+            pauseDownload(downloadInfo, holder)
+            if (downloadInfo.downloadStatus != DownloadStatus.statusComplete)
+                downloadInfo.downloadStatus == DownloadStatus.statusPause
+        }
+
 
         if (downloadInfo.downloadStatus == DownloadStatus.statusStart)
             holder.tv_download.setText("下载")
@@ -43,50 +61,59 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
 
         holder.tv_download.setOnClickListener {
             if (downloadInfo.downloadStatus == DownloadStatus.statusPause || downloadInfo.downloadStatus == DownloadStatus.statusStart) {
-                DownloadManager.getInstance().download(downloadInfo, object : DownLoadObserver() {
-                    override fun onNext(value: DownloadInfo) {
-                        super.onNext(value)
-
-                        mDownloadLength = value.downloadLength
-                        Log.d("gaolei", "downloadLength:" + value.downloadLength)
-                        holder.progress.setProgress(mDownloadLength.toInt())
-                    }
-
-                    override fun onComplete() {
-                        downloadInfo.downloadLength = mDownloadLength
-                        downloadInfo.downloadStatus = DownloadStatus.statusComplete
-                        updateDownloadInfo(downloadInfo)
-
-                        if (downloadInfo != null) {
-                            Toast.makeText(
-                                context,
-                                downloadInfo.getFileShowName() + " 下载完成",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                })
-                downloadInfo.downloadStatus = DownloadStatus.statusDownloading
-                downloadInfo.downloadLength = mDownloadLength
-                updateDownloadInfo(downloadInfo)
-                holder.tv_download.setText("暂停")
+                startDownload(downloadInfo, holder)
             } else if (downloadInfo.downloadStatus == DownloadStatus.statusDownloading) {
-
-                downloadInfo.downloadStatus = DownloadStatus.statusPause
-                downloadInfo.downloadLength = mDownloadLength
-                updateDownloadInfo(downloadInfo)
-
-                DownloadManager.getInstance().cancel(downloadInfo.url)
-                holder.tv_download.setText("继续")
+                pauseDownload(downloadInfo, holder)
+            } else if (downloadInfo.downloadStatus == DownloadStatus.statusComplete) {
+                Toast.makeText(context, "已经下载完成", Toast.LENGTH_SHORT).show()
             }
 
         }
 
     }
 
+    fun startDownload(info: DownloadInfo, holder: ViewHolder) {
+
+        DownloadManager.getInstance().download(info, object : DownLoadObserver() {
+            override fun onNext(value: DownloadInfo) {
+                super.onNext(value)
+                info.downloadLength = value.downloadLength
+                Log.d("gaolei", "downloadLength:" + value.downloadLength)
+                holder.progress.setProgress(value.downloadLength.toInt())
+                if (value.downloadLength == value.totalLength) {
+                    holder.tv_download.setText("完成")
+                    downloadInfo.downloadStatus = DownloadStatus.statusComplete
+                    updateDownloadInfo(downloadInfo)
+                }
+            }
+
+            override fun onComplete() {
+                downloadInfo.downloadStatus = DownloadStatus.statusComplete
+                updateDownloadInfo(downloadInfo)
+
+                if (downloadInfo != null) {
+                    Toast.makeText(
+                        context,
+                        downloadInfo.getFileShowName() + " 下载完成",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        })
+        info.downloadStatus = DownloadStatus.statusDownloading
+        updateDownloadInfo(info)
+        holder.tv_download.setText("暂停")
+    }
+
+    fun pauseDownload(info: DownloadInfo, holder: ViewHolder) {
+        info.downloadStatus = DownloadStatus.statusPause
+        updateDownloadInfo(info)
+
+        DownloadManager.getInstance().cancel(info.url)
+        holder.tv_download.setText("继续")
+    }
+
     fun updateDownloadInfo(downloadInfo: DownloadInfo) {
-//       var downloadInfo: DownloadInfo =
-//           DatabaseManager.getInstance().db.downloadDao().findByFileUrl(downloadInfo.url)
         downloadInfo.downloadLength = downloadInfo.downloadLength
         downloadInfo.downloadStatus = downloadInfo.downloadStatus
         DatabaseManager.getInstance().db.downloadDao().update(downloadInfo)

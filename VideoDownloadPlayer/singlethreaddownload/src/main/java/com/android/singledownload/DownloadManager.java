@@ -3,7 +3,6 @@ package com.android.singledownload;
 import android.os.Environment;
 import android.util.Log;
 import com.android.singledownload.db.DatabaseManager;
-import com.android.singledownload.net.OkhttpManager;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -13,7 +12,6 @@ import okhttp3.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -77,23 +75,6 @@ public class DownloadManager {
         downCalls.remove(url);
     }
 
-//    /**
-//     * 创建DownInfo
-//     *
-//     * @param url 请求网址
-//     * @return DownInfo
-//     */
-//    private DownloadInfo createDownInfo(String url) {
-////        DownloadInfo downloadInfo = new DownloadInfo();
-////        long contentLength = getContentLength(url);//获得文件大小
-////        downloadInfo.setTotalLength(contentLength);
-////        String fileName = url.substring(url.lastIndexOf("/"));
-////        downloadInfo.setFileName(fileName);
-////        downloadInfo.setUrl(url);
-//        DownloadInfo downloadInfo= DatabaseManager.getInstance().db.downloadDao().findByFileUrl(url);
-//        return downloadInfo;
-//    }
-
     private DownloadInfo getRealFileName(DownloadInfo downloadInfo) {
         String fileName = downloadInfo.getFileName();
         long downloadLength = 0, contentLength = downloadInfo.getTotalLength();
@@ -102,23 +83,11 @@ public class DownloadManager {
             //找到了文件,代表已经下载过,则获取其长度
             downloadLength = file.length();
         }
-        //之前下载过,需要重新来一个文件
-        int i = 1;
-        while (downloadLength >= contentLength) {
-            int dotIndex = fileName.lastIndexOf(".");
-            String fileNameOther;
-            if (dotIndex == -1) {
-                fileNameOther = fileName + "(" + i + ")";
-            } else {
-                fileNameOther = fileName.substring(0, dotIndex)
-                        + "(" + i + ")" + fileName.substring(dotIndex);
-            }
-            File newFile = new File(downloadPath, fileNameOther);
-            file = newFile;
-            downloadLength = newFile.length();
-            i++;
+        if (downloadLength >= contentLength) {
+            downloadInfo.setDownloadStatus(DownloadStatus.statusComplete);
+            DatabaseManager.getInstance().db.downloadDao().update(downloadInfo);
+            return downloadInfo;
         }
-        //设置改变过的文件名/大小
         downloadInfo.setDownloadLength(downloadLength);
         downloadInfo.setFileName(file.getName());
         return downloadInfo;
@@ -147,8 +116,7 @@ public class DownloadManager {
             Call call = mClient.newCall(request);
             downCalls.put(url, call);//把这个添加到call里,方便取消
             Response response = call.execute();
-            ResponseBody responseBody=response.body();
-//            String responseStr = responseBody.string();
+            ResponseBody responseBody = response.body();
 //            Log.d("gaolei","responseStr.length()："+responseStr.length());
             File file = new File(downloadPath, downloadInfo.getFileName());
             InputStream is = null;
@@ -179,30 +147,5 @@ public class DownloadManager {
 
         }
     }
-
-    /**
-     * 获取下载长度
-     *
-     * @param downloadUrl
-     * @return
-     */
-//    private long getContentLength(String downloadUrl) {
-//        final long TOTAL_ERROR = -1;//获取进度失败
-//        Request request = new Request.Builder()
-//                .url(downloadUrl)
-//                .build();
-//        try {
-//            Response response = mClient.newCall(request).execute();
-//            if (response != null && response.isSuccessful()) {
-//                long contentLength = response.body().contentLength();
-//                response.close();
-//                return contentLength == 0 ? TOTAL_ERROR : contentLength;
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return TOTAL_ERROR;
-//    }
-
 
 }

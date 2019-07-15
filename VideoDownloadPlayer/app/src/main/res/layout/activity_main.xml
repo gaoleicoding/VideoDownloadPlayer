@@ -29,22 +29,24 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_title"/>
         <TextView
-                android:id="@+id/tv_pause"
+                android:id="@+id/tv_all"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="全部暂停"
+                android:text="全部开始"
                 android:gravity="center"
-                android:background="@drawable/pause_bg"
+                android:clickable="true"
+                android:background="@drawable/selector_pause_bg"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
                 android:textSize="15sp"
                 android:padding="10dp"
+                android:onClick="startOrPauseAll"
                 app:layout_constraintHorizontal_chainStyle="spread"
                 app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toLeftOf="@id/tv_download_count"
+                app:layout_constraintRight_toLeftOf="@id/tv_edit"
                 app:layout_constraintTop_toBottomOf="@id/divider"/>
         <TextView
-                android:id="@+id/tv_download_count"
+                android:id="@+id/tv_edit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="编辑"
@@ -54,8 +56,9 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
-                android:background="@drawable/pause_bg"
-                app:layout_constraintLeft_toRightOf="@id/tv_pause"
+                android:clickable="true"
+                android:background="@drawable/selector_pause_bg"
+                app:layout_constraintLeft_toRightOf="@id/tv_all"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/divider"/>
         <androidx.recyclerview.widget.RecyclerView
@@ -71,7 +74,7 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_pause" />
+                app:layout_constraintTop_toBottomOf="@id/tv_all"/>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
