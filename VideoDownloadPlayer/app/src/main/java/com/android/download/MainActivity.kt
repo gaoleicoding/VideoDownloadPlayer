@@ -124,6 +124,10 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+    fun edit(view: View) {
+
+
+    }
 
     fun stopAll(view: View) {
         videoAdapter.notifyStartOrPauseAll(false, true)

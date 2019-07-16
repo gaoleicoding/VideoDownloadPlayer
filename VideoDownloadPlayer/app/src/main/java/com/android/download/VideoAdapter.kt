@@ -56,8 +56,10 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
             holder.tv_download.setText("继续")
         if (downloadInfo.downloadStatus == DownloadStatus.statusDownloading)
             holder.tv_download.setText("暂停")
-        if (downloadInfo.downloadStatus == DownloadStatus.statusComplete)
+        if (downloadInfo.downloadStatus == DownloadStatus.statusComplete) {
             holder.tv_download.setText("完成")
+            holder.progress.setProgress(downloadInfo.totalLength.toInt())
+        }
 
         holder.tv_download.setOnClickListener {
             if (downloadInfo.downloadStatus == DownloadStatus.statusPause || downloadInfo.downloadStatus == DownloadStatus.statusStart) {

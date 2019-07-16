@@ -57,6 +57,7 @@
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:clickable="true"
+                android:onClick="edit"
                 android:background="@drawable/selector_pause_bg"
                 app:layout_constraintLeft_toRightOf="@id/tv_all"
                 app:layout_constraintRight_toRightOf="parent"
@@ -73,9 +74,56 @@
                 android:layout_marginBottom="5dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/cl_edit"
                 app:layout_constraintTop_toBottomOf="@id/tv_all"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_edit"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+        >
 
-
+            <TextView
+                    android:id="@+id/tv_select_all"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:text="全选"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:background="@drawable/selector_pause_bg"
+                    android:textSize="14sp"
+                    android:textColor="@color/black"
+                    android:padding="10dp"
+                    app:layout_constraintHorizontal_weight="0.5"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/divider_vertical"
+            />
+            <View
+                    android:id="@+id/divider_vertical"
+                    android:background="#cccccc"
+                    android:layout_width="1dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    app:layout_constraintLeft_toRightOf="@id/tv_select_all"
+                    app:layout_constraintRight_toLeftOf="@id/tv_delete"
+                    android:layout_height="match_parent"/>
+            <TextView
+                    android:id="@+id/tv_delete"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:text="删除"
+                    android:textSize="14sp"
+                    android:textColor="@color/black"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:clickable="true"
+                    app:layout_constraintHorizontal_weight="0.5"
+                    android:background="@drawable/selector_pause_bg"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toRightOf="@id/divider_vertical"
+            />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
