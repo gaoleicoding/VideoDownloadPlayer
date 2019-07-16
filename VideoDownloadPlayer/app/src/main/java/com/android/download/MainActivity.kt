@@ -24,18 +24,45 @@ import okhttp3.Request
 import java.io.IOException
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
 
+    lateinit var videoUrls: Array<String>
     lateinit var fileList: MutableList<DownloadInfo>
-    lateinit var fileList2: MutableList<DownloadInfo>
+    lateinit var fileOpList: MutableList<DownloadInfo>
     lateinit var videoAdapter: VideoAdapter
+    lateinit var downloadInfoList: MutableList<DownloadInfo>
+
+    override fun onChecked(position: Int, downloadInfo: DownloadInfo, isChecked: Boolean) {
+        if (isChecked) {
+//            urlSet.add(url)
+            downloadInfoList.add(downloadInfo)
+
+        } else {
+//            urlSet.remove(url)
+            downloadInfoList.remove(downloadInfo)
+        }
+            changeDelText(downloadInfoList.size)
+    }
+
+    fun changeDelText(size: Int) {
+        if (size > 0) {
+            tv_delete.setTextColor(getColor(R.color.color_ffa400))
+            tv_delete.setText("删除" + "(" + size + ")")
+        } else {
+            tv_delete.setTextColor(getColor(R.color.black))
+            tv_delete.setText("删除")
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val videosUrl: Array<String> = resources.getStringArray(R.array.videos);
-        val videosName: Array<String> = resources.getStringArray(R.array.videos_name);
-        val images: List<Int> = mutableListOf(
+//        urlSet = HashSet()
+
+        videoUrls = resources.getStringArray(R.array.videos);
+        val videoNames: Array<String> = resources.getStringArray(R.array.videos_name);
+        val videoImages: List<Int> = mutableListOf(
             R.mipmap.img1,
             R.mipmap.img2,
             R.mipmap.img3,
@@ -48,29 +75,32 @@ class MainActivity : AppCompatActivity() {
             R.mipmap.img10
         )
         fileList = mutableListOf()
-        fileList2 = mutableListOf()
+        fileOpList = mutableListOf()
+        downloadInfoList = mutableListOf()
 
         for (index in 0..9) {
             var downloadInfo = DownloadInfo()
-            downloadInfo.url = videosUrl[index]
-            downloadInfo.fileShowName = videosName[index]
-            downloadInfo.fileImg = images[index]
+            downloadInfo.url = videoUrls[index]
+            downloadInfo.fileShowName = videoNames[index]
+            downloadInfo.fileImg = videoImages[index]
             fileList.add(downloadInfo)
         }
         if (SharedPreferencesUtil.getInstance(this).getSP("isFirstInsertData").equals("")) {
             getObservable().subscribe(getObserver());
 
         } else {
-            fileList2 = DatabaseManager.getInstance().db.downloadDao().getAll()
-            for (index in 0..fileList2.size - 1) {
-                if (fileList2[index].downloadStatus == DownloadStatus.statusDownloading) {
-                    fileList2[index].downloadStatus = DownloadStatus.statusPause
-                    DatabaseManager.getInstance().db.downloadDao().update(fileList2[index])
+            fileOpList = DatabaseManager.getInstance().db.downloadDao().getAll()
+            for (index in 0..fileOpList.size - 1) {
+                if (fileOpList[index].downloadStatus == DownloadStatus.statusDownloading) {
+                    fileOpList[index].downloadStatus = DownloadStatus.statusPause
+                    DatabaseManager.getInstance().db.downloadDao().update(fileOpList[index])
                 }
             }
         }
         initRecyclerView()
         requestPermission()
+        videoAdapter.setOnCheckListener(this)
+
     }
 
     fun getObservable(): Observable<DownloadInfo> {
@@ -91,13 +121,13 @@ class MainActivity : AppCompatActivity() {
         val observer = object : ResourceObserver<DownloadInfo>() {
             override fun onNext(data: DownloadInfo) {
                 Log.d("gaolei", "onNext-------------")
-                fileList2.add(data)
+                fileOpList.add(data)
             }
 
             override fun onComplete() {
                 Log.d("gaolei", "onComplete-------------")
                 videoAdapter.notifyDataSetChanged()
-                DatabaseManager.getInstance().db.downloadDao().insertAll(fileList2)
+                DatabaseManager.getInstance().db.downloadDao().insertAll(fileOpList)
                 SharedPreferencesUtil.getInstance(this@MainActivity).putSP("isFirstInsertData", "false")
             }
 
@@ -110,7 +140,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun initRecyclerView() {
-        videoAdapter = VideoAdapter(this@MainActivity, fileList2)
+        videoAdapter = VideoAdapter(this@MainActivity, fileOpList)
         videoRecyclerView.adapter = videoAdapter
     }
 
@@ -118,19 +148,60 @@ class MainActivity : AppCompatActivity() {
         if (tv_all.text.toString() == "全部开始") {
             videoAdapter.notifyStartOrPauseAll(true, false)
             tv_all.text = "全部暂停"
-        }else {
+        } else {
             videoAdapter.notifyStartOrPauseAll(false, true)
             tv_all.text = "全部开始"
         }
 
     }
-    fun edit(view: View) {
 
+    var isEdit: Boolean = false
+    fun edit(view: View) {
+        if (!isEdit) {
+            videoAdapter.notifyEdit(true)
+            isEdit = true
+            cl_edit.visibility = View.VISIBLE
+            tv_edit.setText("取消")
+        } else {
+            videoAdapter.notifyEdit(false)
+            videoAdapter.selectAll(false)
+            isEdit = false
+            isSelectAll=false
+            cl_edit.visibility = View.GONE
+            tv_edit.setText("编辑")
+            tv_select_all.setText("全选")
+            changeDelText(0)
+            downloadInfoList.clear()
+        }
 
     }
 
-    fun stopAll(view: View) {
-        videoAdapter.notifyStartOrPauseAll(false, true)
+    var isSelectAll: Boolean = false
+    fun selectAll(view: View) {
+        if (!isSelectAll) {
+            isSelectAll = true
+            videoAdapter.selectAll(true)
+            tv_select_all.setText("取消全选")
+            downloadInfoList.clear()
+//            for (index in 0..fileOpList.size - 1) {
+//                downloadInfoList.add(fileOpList[index])
+//            }
+//            changeDelText(downloadInfoList.size)
+        } else {
+            videoAdapter.selectAll(false)
+            isSelectAll = false
+            tv_select_all.setText("全选")
+            changeDelText(0)
+            downloadInfoList.clear()
+        }
+    }
+
+    fun delete(view: View) {
+        if (downloadInfoList.size == 0) return
+        fileOpList.removeAll(downloadInfoList)
+        downloadInfoList.clear()
+        changeDelText(0)
+        videoAdapter.notifyDataSetChanged()
     }
 
     fun requestPermission() {
@@ -179,7 +250,7 @@ class MainActivity : AppCompatActivity() {
                 response.close()
                 return if (contentLength == 0L) TOTAL_ERROR else contentLength
             }
-        } catch (e: IOException) {
+        } catch (e: Throwable) {
             e.printStackTrace()
         }
 

@@ -2,13 +2,11 @@ package com.android.download
 
 import android.content.Context
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.android.singledownload.DownLoadObserver
 import com.android.singledownload.DownloadInfo
@@ -20,6 +18,9 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
     RecyclerView.Adapter<VideoAdapter.ViewHolder>() {
     var isStartAll: Boolean = false
     var isStopAll: Boolean = false
+    var isEdit: Boolean = false
+    var isSelectAll: Boolean = false
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.item_video, parent, false)
         return ViewHolder(view)
@@ -29,6 +30,17 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
         this.isStartAll = isStartAll
         this.isStopAll = isStopAll
         notifyDataSetChanged()
+    }
+
+
+    fun notifyEdit(isEdit: Boolean) {
+        this.isEdit = isEdit
+        notifyDataSetChanged()
+    }
+
+    fun selectAll(isSelectAll: Boolean) {
+        this.isSelectAll = isSelectAll
+        notifyItemRangeChanged(0,fileList.size)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -48,8 +60,24 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
             if (downloadInfo.downloadStatus != DownloadStatus.statusComplete)
                 downloadInfo.downloadStatus == DownloadStatus.statusPause
         }
+        if (isEdit) {
+            holder.cb_select.visibility = View.VISIBLE
+        } else {
+            holder.cb_select.visibility = View.GONE
+            holder.cb_select.isChecked = false
+        }
 
 
+        if (isSelectAll) {
+            holder.cb_select.isChecked = true
+//            onCheckListtener?.onChecked(position, downloadInfo.url, true)
+        } else {
+            holder.cb_select.isChecked = false
+//            onCheckListtener?.onChecked(position, downloadInfo.url, false)
+        }
+        holder.cb_select.setOnCheckedChangeListener { buttonView, isChecked ->
+                onCheckListtener?.onChecked(position, downloadInfo, isChecked)
+        }
         if (downloadInfo.downloadStatus == DownloadStatus.statusStart)
             holder.tv_download.setText("下载")
         if (downloadInfo.downloadStatus == DownloadStatus.statusPause)
@@ -67,7 +95,9 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
             } else if (downloadInfo.downloadStatus == DownloadStatus.statusDownloading) {
                 pauseDownload(downloadInfo, holder)
             } else if (downloadInfo.downloadStatus == DownloadStatus.statusComplete) {
-                Toast.makeText(context, "已经下载完成", Toast.LENGTH_SHORT).show()
+                var toast: Toast = Toast.makeText(context, "已经下载完成", Toast.LENGTH_SHORT)
+                toast.setGravity(Gravity.CENTER, 0, 100)
+                toast.show()
             }
 
         }
@@ -132,6 +162,7 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
         var tv_download: TextView
         var img: ImageView
         var progress: ProgressBar
+        var cb_select: CheckBox
 
         init {
             name = itemView.findViewById(R.id.name)
@@ -139,9 +170,18 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
             tv_download = itemView.findViewById(R.id.tv_download)
             img = itemView.findViewById(R.id.img)
             progress = itemView.findViewById(R.id.progress)
+            cb_select = itemView.findViewById(R.id.cb_select)
 
         }
     }
 
+    interface OnCheckListtener {
+        fun onChecked(position: Int, downloadInfo: DownloadInfo, isChecked: Boolean)
+    }
+
+    var onCheckListtener: OnCheckListtener? = null
+    fun setOnCheckListener(onCheckListtener: OnCheckListtener) {
+        this.onCheckListtener = onCheckListtener
+    }
 
 }
