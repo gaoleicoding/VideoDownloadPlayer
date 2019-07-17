@@ -1,6 +1,7 @@
 package com.android.download
 
 import android.Manifest.permission
+import android.app.ProgressDialog
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -32,7 +33,7 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
     lateinit var fileOpList: MutableList<DownloadInfo>
     lateinit var videoAdapter: VideoAdapter
     lateinit var selectDownloadList: MutableList<DownloadInfo>
-
+    lateinit var dialog: ProgressDialog
     override fun onChecked(position: Int, downloadInfo: DownloadInfo, isChecked: Boolean) {
 
         if (isChecked) {
@@ -63,6 +64,9 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        dialog = ProgressDialog(this@MainActivity)
+        dialog.setMessage("加载中...")
+        dialog.setCancelable(true)
 
         videoUrls = resources.getStringArray(R.array.videos);
         val videoNames: Array<String> = resources.getStringArray(R.array.videos_name);
@@ -82,16 +86,16 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
         fileOpList = mutableListOf()
         selectDownloadList = mutableListOf()
 
-        for (index in 0..9) {
-            var downloadInfo = DownloadInfo()
-            downloadInfo.url = videoUrls[index]
-            downloadInfo.fileShowName = videoNames[index]
-            downloadInfo.fileImg = videoImages[index]
-            fileList.add(downloadInfo)
-        }
         if (SharedPreferencesUtil.getInstance(this).getSP("isFirstInsertData").equals("")) {
+            for (index in 0..9) {
+                var downloadInfo = DownloadInfo()
+                downloadInfo.url = videoUrls[index]
+                downloadInfo.fileShowName = videoNames[index]
+                downloadInfo.fileImg = videoImages[index]
+                fileList.add(downloadInfo)
+            }
             getObservable().subscribe(getObserver());
-
+            dialog.show()
         } else {
             fileOpList = DatabaseManager.getInstance().db.downloadDao().getAll()
             for (index in 0..fileOpList.size - 1) {
@@ -133,6 +137,7 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
                 videoAdapter.notifyDataSetChanged()
                 DatabaseManager.getInstance().db.downloadDao().insertAll(fileOpList)
                 SharedPreferencesUtil.getInstance(this@MainActivity).putSP("isFirstInsertData", "false")
+                dialog.dismiss()
             }
 
             override fun onError(e: Throwable) {
@@ -168,17 +173,21 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
             cl_edit.visibility = View.VISIBLE
             tv_edit.setText("取消")
         } else {
-            videoAdapter.notifyEdit(false)
-            videoAdapter.selectAll(false)
-            isEdit = false
-            isSelectAll = false
-            cl_edit.visibility = View.GONE
-            tv_edit.setText("编辑")
-            tv_select_all.setText("全选")
-            changeDelText(0)
-            selectDownloadList.clear()
+            cancelEdit()
         }
 
+    }
+
+    fun cancelEdit() {
+        videoAdapter.notifyEdit(false)
+        videoAdapter.selectAll(false)
+        isEdit = false
+        isSelectAll = false
+        cl_edit.visibility = View.GONE
+        tv_edit.setText("编辑")
+        tv_select_all.setText("全选")
+        changeDelText(0)
+        selectDownloadList.clear()
     }
 
     var isSelectAll: Boolean = false
@@ -205,8 +214,6 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
         if (selectDownloadList.size == 0) return
         fileOpList.removeAll(selectDownloadList)
 
-        videoAdapter.notifyDataSetChanged()
-
         changeDelText(0)
         for (downloadInfo in selectDownloadList) {
             val fileName = downloadInfo.getFileName()
@@ -217,7 +224,8 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
             }
         }
         DatabaseManager.getInstance().db.downloadDao().deleteAll(selectDownloadList)
-        selectDownloadList.clear()
+        cancelEdit()
+
     }
 
     fun requestPermission() {

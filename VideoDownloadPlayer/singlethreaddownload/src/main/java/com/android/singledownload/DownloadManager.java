@@ -83,11 +83,9 @@ public class DownloadManager {
             //找到了文件,代表已经下载过,则获取其长度
             downloadLength = file.length();
         }
-        if (downloadLength >= contentLength) {
-            downloadInfo.setDownloadStatus(DownloadStatus.statusComplete);
-            DatabaseManager.getInstance().db.downloadDao().update(downloadInfo);
-            return downloadInfo;
-        }
+//        if (downloadLength >= contentLength) {
+//            return null;
+//        }
         downloadInfo.setDownloadLength(downloadLength);
         downloadInfo.setFileName(file.getName());
         return downloadInfo;
