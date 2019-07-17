@@ -98,7 +98,6 @@
                     android:textColor="@color/black"
                     android:onClick="selectAll"
                     android:padding="10dp"
-                    app:layout_constraintHorizontal_weight="0.5"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toLeftOf="@id/divider_vertical"
             />
@@ -122,7 +121,6 @@
                     android:gravity="center"
                     android:clickable="true"
                     android:onClick="delete"
-                    app:layout_constraintHorizontal_weight="0.5"
                     android:background="@drawable/selector_pause_bg"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintLeft_toRightOf="@id/divider_vertical"

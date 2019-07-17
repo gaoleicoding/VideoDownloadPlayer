@@ -21,7 +21,6 @@ import io.reactivex.observers.ResourceObserver
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.Request
-import java.io.IOException
 
 
 class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
@@ -30,18 +29,17 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
     lateinit var fileList: MutableList<DownloadInfo>
     lateinit var fileOpList: MutableList<DownloadInfo>
     lateinit var videoAdapter: VideoAdapter
-    lateinit var downloadInfoList: MutableList<DownloadInfo>
+    lateinit var selectDownloadList: MutableList<DownloadInfo>
 
     override fun onChecked(position: Int, downloadInfo: DownloadInfo, isChecked: Boolean) {
+
         if (isChecked) {
-//            urlSet.add(url)
-            downloadInfoList.add(downloadInfo)
+            selectDownloadList.add(downloadInfo)
 
         } else {
-//            urlSet.remove(url)
-            downloadInfoList.remove(downloadInfo)
+            selectDownloadList.remove(downloadInfo)
         }
-            changeDelText(downloadInfoList.size)
+        changeDelText(selectDownloadList.size)
     }
 
     fun changeDelText(size: Int) {
@@ -52,13 +50,17 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
             tv_delete.setTextColor(getColor(R.color.black))
             tv_delete.setText("删除")
         }
+        if(fileOpList.size>size){
+            isSelectAll = false
+            tv_select_all.setText("全选")
+        }
+
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//        urlSet = HashSet()
 
         videoUrls = resources.getStringArray(R.array.videos);
         val videoNames: Array<String> = resources.getStringArray(R.array.videos_name);
@@ -76,7 +78,7 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
         )
         fileList = mutableListOf()
         fileOpList = mutableListOf()
-        downloadInfoList = mutableListOf()
+        selectDownloadList = mutableListOf()
 
         for (index in 0..9) {
             var downloadInfo = DownloadInfo()
@@ -142,6 +144,7 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
     private fun initRecyclerView() {
         videoAdapter = VideoAdapter(this@MainActivity, fileOpList)
         videoRecyclerView.adapter = videoAdapter
+        videoRecyclerView.itemAnimator = null
     }
 
     fun startOrPauseAll(view: View) {
@@ -166,12 +169,12 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
             videoAdapter.notifyEdit(false)
             videoAdapter.selectAll(false)
             isEdit = false
-            isSelectAll=false
+            isSelectAll = false
             cl_edit.visibility = View.GONE
             tv_edit.setText("编辑")
             tv_select_all.setText("全选")
             changeDelText(0)
-            downloadInfoList.clear()
+            selectDownloadList.clear()
         }
 
     }
@@ -182,26 +185,28 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
             isSelectAll = true
             videoAdapter.selectAll(true)
             tv_select_all.setText("取消全选")
-            downloadInfoList.clear()
-//            for (index in 0..fileOpList.size - 1) {
-//                downloadInfoList.add(fileOpList[index])
-//            }
-//            changeDelText(downloadInfoList.size)
+            selectDownloadList.clear()
+            for (index in 0..fileOpList.size - 1) {
+                selectDownloadList.add(fileOpList[index])
+            }
+            changeDelText(selectDownloadList.size)
         } else {
             videoAdapter.selectAll(false)
             isSelectAll = false
             tv_select_all.setText("全选")
             changeDelText(0)
-            downloadInfoList.clear()
+            selectDownloadList.clear()
         }
     }
 
     fun delete(view: View) {
-        if (downloadInfoList.size == 0) return
-        fileOpList.removeAll(downloadInfoList)
-        downloadInfoList.clear()
-        changeDelText(0)
+        if (selectDownloadList.size == 0) return
+        fileOpList.removeAll(selectDownloadList)
+
         videoAdapter.notifyDataSetChanged()
+        DatabaseManager.getInstance().db.downloadDao().deleteAll(selectDownloadList)
+        selectDownloadList.clear()
+        changeDelText(0)
     }
 
     fun requestPermission() {

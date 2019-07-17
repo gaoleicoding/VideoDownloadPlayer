@@ -1,11 +1,9 @@
 package com.android.download
 
+import android.app.admin.DevicePolicyManager
 import android.content.Context
 import android.util.Log
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.android.singledownload.DownLoadObserver
@@ -40,7 +38,7 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
 
     fun selectAll(isSelectAll: Boolean) {
         this.isSelectAll = isSelectAll
-        notifyItemRangeChanged(0,fileList.size)
+        notifyDataSetChanged()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -70,14 +68,18 @@ class VideoAdapter(private val context: Context, private val fileList: List<Down
 
         if (isSelectAll) {
             holder.cb_select.isChecked = true
-//            onCheckListtener?.onChecked(position, downloadInfo.url, true)
         } else {
             holder.cb_select.isChecked = false
-//            onCheckListtener?.onChecked(position, downloadInfo.url, false)
         }
-        holder.cb_select.setOnCheckedChangeListener { buttonView, isChecked ->
-                onCheckListtener?.onChecked(position, downloadInfo, isChecked)
+
+
+        holder.cb_select.setOnTouchListener { v, event ->
+            if(event.action == MotionEvent.ACTION_UP){
+            holder.cb_select.toggle()
+            onCheckListtener?.onChecked(position, downloadInfo, holder.cb_select.isChecked)}
+            return@setOnTouchListener true
         }
+
         if (downloadInfo.downloadStatus == DownloadStatus.statusStart)
             holder.tv_download.setText("下载")
         if (downloadInfo.downloadStatus == DownloadStatus.statusPause)
