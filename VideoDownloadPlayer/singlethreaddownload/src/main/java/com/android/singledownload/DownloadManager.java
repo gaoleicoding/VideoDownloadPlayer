@@ -2,7 +2,6 @@ package com.android.singledownload;
 
 import android.os.Environment;
 import android.util.Log;
-import com.android.singledownload.db.DatabaseManager;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -59,7 +58,7 @@ public class DownloadManager {
         Observable.just(info.getUrl())
                 .filter(s -> !downCalls.containsKey(s))//call的map已经有了,就证明正在下载,则这次不下载
                 .flatMap(s -> Observable.just(info))
-                .map(this::getRealFileName)//检测本地文件夹,生成新的文件名
+                .map(this::getDownloadInfo)//检测本地文件夹,生成新的文件名
                 .flatMap(downloadInfo -> Observable.create(new DownloadSubscribe(downloadInfo)))//下载
                 .subscribeOn(Schedulers.io())//在子线程执行
                 .observeOn(AndroidSchedulers.mainThread())//在主线程回调
@@ -75,8 +74,8 @@ public class DownloadManager {
         downCalls.remove(url);
     }
 
-    private DownloadInfo getRealFileName(DownloadInfo downloadInfo) {
-        long downloadLength = 0, contentLength = downloadInfo.getTotalLength();
+    private DownloadInfo getDownloadInfo(DownloadInfo downloadInfo) {
+        long downloadLength = 0;
         String fileName = downloadInfo.getFileName();
         File file = new File(downloadPath, fileName);
         if (file.exists()) {
