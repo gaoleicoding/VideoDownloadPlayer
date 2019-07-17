@@ -41,7 +41,7 @@ public class DownloadManager {
     private DownloadManager() {
         downCalls = new HashMap<>();
         mClient = new OkHttpClient.Builder().build();
-        downloadPath = Environment.getExternalStorageDirectory().getPath() + "/downloadPlayer";
+        downloadPath = Environment.getExternalStorageDirectory().getPath() + "/AFileDownloader";
         File file = new File(downloadPath);
         if (!file.exists()) {
             //找到了文件,代表已经下载过,则获取其长度
@@ -76,8 +76,8 @@ public class DownloadManager {
     }
 
     private DownloadInfo getRealFileName(DownloadInfo downloadInfo) {
-        String fileName = downloadInfo.getFileName();
         long downloadLength = 0, contentLength = downloadInfo.getTotalLength();
+        String fileName = downloadInfo.getFileName();
         File file = new File(downloadPath, fileName);
         if (file.exists()) {
             //找到了文件,代表已经下载过,则获取其长度

@@ -10,6 +10,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import com.android.singledownload.DownloadInfo
+import com.android.singledownload.DownloadManager
 import com.android.singledownload.DownloadStatus
 import com.android.singledownload.SharedPreferencesUtil
 import com.android.singledownload.db.DatabaseManager
@@ -21,6 +22,7 @@ import io.reactivex.observers.ResourceObserver
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.Request
+import java.io.File
 
 
 class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
@@ -50,7 +52,7 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
             tv_delete.setTextColor(getColor(R.color.black))
             tv_delete.setText("删除")
         }
-        if(fileOpList.size>size){
+        if (fileOpList.size > size) {
             isSelectAll = false
             tv_select_all.setText("全选")
         }
@@ -204,9 +206,18 @@ class MainActivity : AppCompatActivity(), VideoAdapter.OnCheckListtener {
         fileOpList.removeAll(selectDownloadList)
 
         videoAdapter.notifyDataSetChanged()
+
+        changeDelText(0)
+        for (downloadInfo in selectDownloadList) {
+            val fileName = downloadInfo.getFileName()
+            val file = File(DownloadManager.getInstance().downloadPath, fileName)
+            if (file.exists()) {
+                //找到了文件,删除
+                file.delete()
+            }
+        }
         DatabaseManager.getInstance().db.downloadDao().deleteAll(selectDownloadList)
         selectDownloadList.clear()
-        changeDelText(0)
     }
 
     fun requestPermission() {
