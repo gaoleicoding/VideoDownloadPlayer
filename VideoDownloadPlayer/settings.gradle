@@ -1,1 +1,1 @@
-include ':app', ':singlethreaddownload'
+include ':app', ':multihreaddownload'
